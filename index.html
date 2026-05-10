@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LinkSee</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f7fb;
+        --panel: #ffffff;
+        --panel-2: #f0f3f8;
+        --text: #172033;
+        --muted: #667085;
+        --border: #d7dce5;
+        --primary: #0f766e;
+        --primary-dark: #115e59;
+        --danger: #b42318;
+        --shadow: 0 18px 45px rgba(18, 31, 53, 0.09);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+        font-size: 14px;
+        white-space: nowrap;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .search {
+        padding: 18px;
+        margin-bottom: 18px;
+      }
+
+      .form {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+      }
+
+      .url-input {
+        min-width: 0;
+        height: 46px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0 14px;
+        color: var(--text);
+        background: #fff;
+        outline: none;
+      }
+
+      .url-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+      }
+
+      .button {
+        height: 46px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 16px;
+        color: #fff;
+        background: var(--primary);
+        cursor: pointer;
+        font-weight: 650;
+      }
+
+      .button:hover {
+        background: var(--primary-dark);
+      }
+
+      .button.secondary {
+        color: var(--text);
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+      }
+
+      .button.secondary:hover {
+        background: #e7ebf2;
+      }
+
+      .button:disabled {
+        opacity: 0.58;
+        cursor: wait;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .section {
+        padding: 18px;
+      }
+
+      .section h2 {
+        margin: 0 0 14px;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      .preview-card {
+        overflow: hidden;
+        border: 1px solid #cfd6e2;
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+
+      .preview-image-wrap {
+        display: none;
+        width: 100%;
+        aspect-ratio: 1.91 / 1;
+        background: #e4e8ef;
+      }
+
+      .preview-image-wrap.visible {
+        display: block;
+      }
+
+      .preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .preview-body {
+        padding: 14px;
+      }
+
+      .preview-host {
+        margin-bottom: 7px;
+        color: #667085;
+        font-size: 12px;
+        text-transform: uppercase;
+        overflow-wrap: anywhere;
+      }
+
+      .preview-title {
+        margin: 0 0 7px;
+        color: #111827;
+        font-size: 17px;
+        line-height: 1.25;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .preview-desc {
+        margin: 0;
+        color: #475467;
+        font-size: 14px;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+
+      .empty {
+        display: grid;
+        place-items: center;
+        min-height: 320px;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        color: var(--muted);
+        text-align: center;
+        padding: 24px;
+      }
+
+      .fields {
+        display: grid;
+        gap: 12px;
+      }
+
+      .field {
+        display: grid;
+        gap: 5px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .value {
+        min-height: 36px;
+        padding: 9px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fbfcfe;
+        color: var(--text);
+        overflow-wrap: anywhere;
+        line-height: 1.35;
+      }
+
+      details {
+        margin-top: 16px;
+      }
+
+      summary {
+        cursor: pointer;
+        color: var(--primary-dark);
+        font-weight: 700;
+      }
+
+      pre {
+        max-height: 360px;
+        overflow: auto;
+        margin: 12px 0 0;
+        padding: 14px;
+        border-radius: 8px;
+        background: #101828;
+        color: #e5e7eb;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 820px) {
+        .shell {
+          width: min(100% - 20px, 680px);
+          padding: 18px 0;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .form,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <h1>LinkSee</h1>
+        <span class="badge">Open Graph + Twitter Cards</span>
+      </header>
+
+      <section class="panel search">
+        <form class="form" id="preview-form">
+          <input
+            class="url-input"
+            id="url-input"
+            name="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            required
+          />
+          <button class="button" id="submit-button" type="submit">Gerar prévia</button>
+          <button class="button secondary" id="refresh-button" type="button">Atualizar sem cache</button>
+        </form>
+        <div class="status" id="status">Cole uma URL pública para começar.</div>
+      </section>
+
+      <div class="grid">
+        <section class="panel section">
+          <h2>Prévia</h2>
+          <div id="preview-empty" class="empty">A prévia aparece aqui.</div>
+          <article id="preview-card" class="preview-card" hidden>
+            <div class="preview-image-wrap" id="preview-image-wrap">
+              <img class="preview-image" id="preview-image" alt="" />
+            </div>
+            <div class="preview-body">
+              <div class="preview-host" id="preview-host"></div>
+              <h3 class="preview-title" id="preview-title"></h3>
+              <p class="preview-desc" id="preview-desc"></p>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel section">
+          <h2>Metadados</h2>
+          <div class="fields">
+            <div class="field">
+              <label>URL final</label>
+              <div class="value" id="field-final-url">-</div>
+            </div>
+            <div class="field">
+              <label>Título</label>
+              <div class="value" id="field-title">-</div>
+            </div>
+            <div class="field">
+              <label>Descrição</label>
+              <div class="value" id="field-description">-</div>
+            </div>
+            <div class="field">
+              <label>Imagem</label>
+              <div class="value" id="field-image">-</div>
+            </div>
+            <div class="field">
+              <label>Site</label>
+              <div class="value" id="field-site">-</div>
+            </div>
+          </div>
+          <details>
+            <summary>Raw</summary>
+            <pre id="raw-json">{}</pre>
+          </details>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const form = document.querySelector("#preview-form");
+      const input = document.querySelector("#url-input");
+      const statusEl = document.querySelector("#status");
+      const submitButton = document.querySelector("#submit-button");
+      const refreshButton = document.querySelector("#refresh-button");
+      const empty = document.querySelector("#preview-empty");
+      const card = document.querySelector("#preview-card");
+      const imageWrap = document.querySelector("#preview-image-wrap");
+      const image = document.querySelector("#preview-image");
+
+      const fields = {
+        finalUrl: document.querySelector("#field-final-url"),
+        title: document.querySelector("#field-title"),
+        description: document.querySelector("#field-description"),
+        image: document.querySelector("#field-image"),
+        site: document.querySelector("#field-site"),
+        raw: document.querySelector("#raw-json"),
+        host: document.querySelector("#preview-host"),
+        previewTitle: document.querySelector("#preview-title"),
+        previewDesc: document.querySelector("#preview-desc"),
+      };
+
+      const setBusy = (busy) => {
+        submitButton.disabled = busy;
+        refreshButton.disabled = busy;
+        if (busy) {
+          statusEl.textContent = "Buscando metadados...";
+          statusEl.classList.remove("error");
+        }
+      };
+
+      const text = (value, fallback = "-") => {
+        const clean = String(value || "").trim();
+        return clean || fallback;
+      };
+
+      const render = (data) => {
+        empty.hidden = true;
+        card.hidden = false;
+
+        fields.host.textContent = text(data.siteName || data.host);
+        fields.previewTitle.textContent = text(data.title, "Sem título encontrado");
+        fields.previewDesc.textContent = text(data.description, "Sem descrição encontrada");
+
+        fields.finalUrl.textContent = text(data.finalUrl);
+        fields.title.textContent = text(data.title);
+        fields.description.textContent = text(data.description);
+        fields.image.textContent = text(data.image);
+        fields.site.textContent = text(data.siteName || data.host);
+        fields.raw.textContent = JSON.stringify(data, null, 2);
+
+        if (data.image) {
+          imageWrap.classList.add("visible");
+          image.src = data.image;
+        } else {
+          image.removeAttribute("src");
+          imageWrap.classList.remove("visible");
+        }
+      };
+
+      const loadPreview = async (refresh = false) => {
+        const url = input.value.trim();
+        if (!url) {
+          input.focus();
+          return;
+        }
+
+        setBusy(true);
+        try {
+          const params = new URLSearchParams({ url, refresh: refresh ? "1" : "0" });
+          const response = await fetch(`/api/preview?${params.toString()}`, { cache: "no-store" });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.detail ? `${data.error} ${data.detail}` : data.error);
+          }
+          render(data);
+          statusEl.textContent = `HTTP ${data.status} - ${data.contentType || "content-type desconhecido"}`;
+          statusEl.classList.remove("error");
+        } catch (error) {
+          statusEl.textContent = error.message || "Erro ao buscar a URL.";
+          statusEl.classList.add("error");
+        } finally {
+          setBusy(false);
+        }
+      };
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        loadPreview(false);
+      });
+
+      refreshButton.addEventListener("click", () => loadPreview(true));
+    </script>
+  </body>
+</html>
