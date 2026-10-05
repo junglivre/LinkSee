@@ -26,6 +26,16 @@ Use `PASSWORD_PROTECTED = 0` para deixar o sistema aberto, sem tela de login.
 
 Antes de publicar em um subdomínio, troque `ACCESS_PASSWORD`.
 
+Também dá para configurar sem editar o código: crie um arquivo `.env` na pasta do projeto (está no `.gitignore`):
+
+```sh
+SERVER_PORT=8787
+PASSWORD_PROTECTED=1
+ACCESS_PASSWORD=senha
+```
+
+Precedência: variável de ambiente > `.env` > default no `server.py`.
+
 ## Rodar
 
 ```sh

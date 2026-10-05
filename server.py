@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import html
 import hmac
+import html
 import ipaddress
 import json
+import os
 import re
 import secrets
 import socket
@@ -19,13 +20,38 @@ from urllib.parse import parse_qs, urljoin, urlparse
 from urllib.request import Request, urlopen
 
 
-SERVER_PORT = 8787
-PASSWORD_PROTECTED = 0
-ACCESS_PASSWORD = ""
+# ---------------------------------------------------------------------------
+# Configuração
+# Precedência: variável de ambiente > arquivo .env > default abaixo.
+ROOT = Path(__file__).resolve().parent
+
+
+def load_env_file(path: Path) -> dict[str, str]:
+    """Parser .env mínimo (stdlib): KEY=VALUE, ignora comentários e vazias."""
+    values: dict[str, str] = {}
+    if not path.is_file():
+        return values
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+def env_config(file_values: dict[str, str], key: str, default: str) -> str:
+    return os.environ.get(key, file_values.get(key, default))
+
+
+_ENV = load_env_file(ROOT / ".env")
+
+SERVER_PORT = int(env_config(_ENV, "SERVER_PORT", "8787"))
+PASSWORD_PROTECTED = int(env_config(_ENV, "PASSWORD_PROTECTED", "0"))
+ACCESS_PASSWORD = env_config(_ENV, "ACCESS_PASSWORD", "")
 SESSION_COOKIE_NAME = "link_preview_session"
 APP_NAME = "LinkSee"
 
-ROOT = Path(__file__).resolve().parent
 MAX_BYTES = 2_000_000
 TIMEOUT_SECONDS = 12
 SESSION_TOKEN = secrets.token_urlsafe(32)
